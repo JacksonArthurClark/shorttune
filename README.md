@@ -2,6 +2,8 @@
 
 ShortTune is a Node.js application that extracts audio from YouTube Shorts and identifies the song using the ACRCloud API. The application includes a web frontend built with Express, allowing users to input a YouTube Short URL to identify the song.
 
+App is availible here: https://shorttune-6e6ae18d639c.herokuapp.com/
+
 ## Features
 
 - Extract audio from YouTube Shorts using `youtube-dl`.
