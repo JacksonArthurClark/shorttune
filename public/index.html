@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShortTune</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>ShortTune</h1>
+    <form id="shorttune-form">
+      <label for="url">LINK:</label>
+      <input type="text" id="url" name="url" required>
+      <button type="submit">Identify Song</button>
+    </form>
+    <div id="result" class="result-box">
+      <!-- Metadata will be displayed here -->
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('shorttune-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const url = document.getElementById('url').value;
+      const button = event.target.querySelector('button');
+      button.disabled = true;
+      button.textContent = 'Loading...';
+
+      fetch('/identify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ url })
+      })
+      .then(response => response.json())
+      .then(data => {
+        const resultBox = document.getElementById('result');
+        button.disabled = false;
+        button.textContent = 'Identify Song';
+
+        if (data.recognitionResult) {
+          const metadata = data.recognitionResult.metadata.music[0];
+          const songTitle = metadata.title;
+          const artistName = metadata.artists[0].name;
+          const albumName = metadata.album.name;
+          const spotifyLink = metadata.external_metadata.spotify.track.id;
+
+          resultBox.innerHTML = `
+            <p><strong>Song Title:</strong> ${songTitle}</p>
+            <p><strong>Artist:</strong> ${artistName}</p>
+            <p><strong>Album:</strong> ${albumName}</p>
+            <p><strong>Spotify Link:</strong> <a href="https://open.spotify.com/track/${spotifyLink}" target="_blank">Listen on Spotify</a></p>
+          `;
+        } else {
+          resultBox.textContent = 'Error: Song not found';
+        }
+      })
+      .catch(error => {
+        const resultBox = document.getElementById('result');
+        button.disabled = false;
+        button.textContent = 'Identify Song';
+        resultBox.textContent = 'Error: ' + error.message;
+      });
+    });
+  </script>
+</body>
+</html>
