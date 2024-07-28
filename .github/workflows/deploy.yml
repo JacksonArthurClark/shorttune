@@ -1,0 +1,28 @@
+name: Deploy to Heroku
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Log in to Heroku Container Registry
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: |
+        echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com
+
+    - name: Build, push and release Docker image
+      run: |
+        docker build -t registry.heroku.com/shorttune/web .
+        docker push registry.heroku.com/shorttune/web
+        heroku container:release web --app shorttune
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
